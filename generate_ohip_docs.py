@@ -455,10 +455,10 @@ body {
 .sidebar-api.active .ep-count { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.2); }
 .sidebar-endpoints { display: none; }
 .sidebar-endpoints.open { display: block; }
-.sidebar-endpoint { padding: 2px 16px 2px 40px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-endpoint { padding: 2px 16px 2px 40px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .sidebar-endpoint:hover { background: var(--bg-tertiary); }
 .sidebar-endpoint.active { background: var(--highlight-bg); }
-.sidebar-endpoint .path { font-family: var(--mono); font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-endpoint .path { font-family: var(--mono); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
 
 .method-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; font-family: var(--mono); flex-shrink: 0; }
 .method-badge.get { background: var(--get-bg); color: var(--get); }

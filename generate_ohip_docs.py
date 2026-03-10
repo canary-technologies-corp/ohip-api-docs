@@ -1049,7 +1049,7 @@ function doSearch(query) {
         '<span class="summary">' + esc(r.graphql.title) + '</span></div>';
     }
     var mc = methodFromShort(r.ep.m);
-    return '<div class="search-result-item" onclick="navigateEndpoint(\'' + r.api.id + '\', ' + r.epIdx + '\')" data-idx="' + i + '">' +
+    return '<div class="search-result-item" onclick="navigateEndpoint(\'' + r.api.id + '\', ' + r.epIdx + ')" data-idx="' + i + '">' +
       '<span class="api-label">' + esc(r.api.id) + '</span>' +
       '<span class="method-badge ' + mc + '">' + r.ep.m + '</span>' +
       pathWithTip(r.ep.p, 3) +

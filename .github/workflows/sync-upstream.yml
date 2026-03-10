@@ -1,0 +1,63 @@
+name: Sync upstream and rebuild
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Weekly on Monday at 6am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs-browser
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/oracle/hospitality-api-docs.git
+          git fetch upstream main
+
+      - name: Check for changes
+        id: check
+        run: |
+          git merge-base --is-ancestor upstream/main HEAD && echo "up_to_date=true" >> "$GITHUB_OUTPUT" || echo "up_to_date=false" >> "$GITHUB_OUTPUT"
+
+      - name: Merge upstream
+        if: steps.check.outputs.up_to_date == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git merge upstream/main --no-edit
+          git push
+
+  deploy:
+    needs: sync
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs-browser
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generate docs
+        run: |
+          python3 generate_ohip_docs.py
+          mkdir _site
+          mv ohip-docs.html _site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

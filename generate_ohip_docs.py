@@ -2,6 +2,7 @@
 """Generate a single-file HTML documentation browser for OHIP API specs."""
 
 import argparse
+from datetime import datetime, timezone
 import base64
 import gzip
 import json
@@ -573,6 +574,7 @@ body {
     <div class="search-overlay" id="searchOverlay" onclick="hideSearch()"></div>
   </div>
   <div class="stats" id="headerStats"></div>
+  <div class="stats" id="generatedAt" title="When these docs were last generated">__GENERATED_AT__</div>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -1241,6 +1243,7 @@ def generate_html(rest_index, rest_details, graphql_index, graphql_details, stre
     html = html.replace("__STREAMING_INDEX__", json.dumps(streaming_index) if streaming_index else "null")
     html = html.replace("__STREAMING_DETAIL__", json.dumps(streaming_detail) if streaming_detail else "null")
     html = html.replace("__API_GROUPS__", json.dumps(API_GROUPS))
+    html = html.replace("__GENERATED_AT__", datetime.now(timezone.utc).strftime("%b %d, %Y %H:%M UTC"))
     return html
 
 

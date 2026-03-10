@@ -434,6 +434,11 @@ body {
   background: var(--sidebar-bg); border-right: 1px solid var(--border);
   overflow-y: auto; overflow-x: hidden; padding: 8px 0;
 }
+.sidebar-resize {
+  width: 4px; cursor: col-resize; background: transparent; flex-shrink: 0;
+  position: relative; z-index: 10; transition: background 0.15s;
+}
+.sidebar-resize:hover, .sidebar-resize.active { background: var(--accent); }
 .sidebar-section-title { padding: 8px 16px 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
 .sidebar-group { margin-bottom: 2px; }
 .sidebar-group-header { display: flex; align-items: center; padding: 4px 16px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text); user-select: none; }
@@ -581,6 +586,7 @@ body {
 
 <div class="layout">
   <nav class="sidebar" id="sidebar"></nav>
+  <div class="sidebar-resize" id="sidebarResize"></div>
   <main class="main" id="main"></main>
 </div>
 

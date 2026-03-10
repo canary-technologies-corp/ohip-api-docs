@@ -1235,6 +1235,32 @@ document.addEventListener('keydown', function(e) {
 });
 
 handleHash();
+
+(function() {
+  var handle = document.getElementById('sidebarResize');
+  var sidebar = document.getElementById('sidebar');
+  var dragging = false;
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    dragging = true;
+    handle.classList.add('active');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    var w = Math.max(180, Math.min(600, e.clientX));
+    sidebar.style.width = w + 'px';
+    sidebar.style.minWidth = w + 'px';
+  });
+  document.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('active');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+})();
 </script>
 </body>
 </html>'''

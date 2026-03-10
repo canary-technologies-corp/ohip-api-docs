@@ -570,7 +570,7 @@ body {
 
 <div class="header">
   <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle sidebar">&#9776;</button>
-  <h1>OHIP API Docs</h1>
+  <h1 style="cursor:pointer" onclick="location.hash=''; renderWelcome();">OHIP API Docs</h1>
   <div class="search-wrapper">
     <span class="search-icon">&#128269;</span>
     <span class="search-scope" id="searchScope" onclick="toggleSearchScope()" title="Click to search all APIs"></span>

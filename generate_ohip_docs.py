@@ -687,7 +687,7 @@ function renderSidebar() {
           const mc = methodFromShort(ep.m);
           html += '<div class="sidebar-endpoint ' + (epActive ? 'active' : '') + '" onclick="event.stopPropagation(); navigateEndpoint(\'' + api.id + '\', ' + i + ')">' +
             '<span class="method-badge ' + mc + '">' + ep.m + '</span>' +
-            '<span class="path">' + truncate(ep.p, 28) + '</span></div>';
+            '<span class="path">' + esc(ep.p) + '</span></div>';
         }
         html += '</div>';
       }

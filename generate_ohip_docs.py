@@ -1246,10 +1246,10 @@ def generate_html(rest_index, rest_details, graphql_index, graphql_details, stre
 
 def main():
     parser = argparse.ArgumentParser(description="Generate OHIP API documentation HTML")
-    parser.add_argument("--rest-specs", default="/Users/ian/misc/oracle-hospitality-docs/rest-api-specs/property/")
-    parser.add_argument("--graphql-schemas", default="/Users/ian/misc/oracle-hospitality-docs/graphql/data-apis/")
-    parser.add_argument("--streaming-schema", default="/Users/ian/misc/oracle-hospitality-docs/graphql/streaming/StreamingGraphQLSchema.json")
-    parser.add_argument("--output", default="/Users/ian/misc/oracle-hospitality-docs/ohip-docs.html")
+    parser.add_argument("--rest-specs", default="rest-api-specs/property/")
+    parser.add_argument("--graphql-schemas", default="graphql/data-apis/")
+    parser.add_argument("--streaming-schema", default="graphql/streaming/StreamingGraphQLSchema.json")
+    parser.add_argument("--output", default="ohip-docs.html")
     args = parser.parse_args()
 
     print("Parsing REST API specs...")

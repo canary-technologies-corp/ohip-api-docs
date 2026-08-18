@@ -26,7 +26,7 @@ API_GROUPS = {
     "Configuration": ["entcfg", "intcfg", "expcfg", "repcfg", "medcfg"],
     "List of Values": ["lov"],
     "Integration": ["int", "dvm", "chl"],
-    "Auth & Provisioning": ["oauth", "tokenexchange", "ops"],
+    "Auth & Provisioning": ["oauth", "tokenexchange", "ecommtokenization", "ops"],
     "Back Office": ["bof"],
     "Outbound": ["crmoutbound", "cshoutbound", "fofoutbound"],
 }
@@ -172,10 +172,16 @@ def parse_rest_specs(base_path: Path) -> tuple[list[dict], dict[str, str]]:
     search_index = []
     compressed_details = {}
 
-    json_files = sorted(base_path.glob("*.json"))
-    outbound_dir = base_path / "outbound"
-    if outbound_dir.exists():
-        json_files.extend(sorted(outbound_dir.glob("*.json")))
+    # Recursive: upstream versions the spec directories (e.g. property/v1/), and
+    # that layout has changed before. A non-recursive glob silently yields nothing
+    # when it does, so match at any depth and fail loudly below if nothing is found.
+    json_files = sorted(base_path.rglob("*.json"))
+
+    if not json_files:
+        raise SystemExit(
+            f"No REST specs found under {base_path}/. The upstream directory layout "
+            f"has likely changed again - check the path and update --rest-specs."
+        )
 
     for filepath in json_files:
         try:

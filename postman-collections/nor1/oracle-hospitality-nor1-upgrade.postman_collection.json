@@ -1,358 +1,308 @@
 {
-	"info": {
-		"_postman_id": "8610de20-dee0-4057-af83-78de074d0531",
-		"name": "4. Nor1 Upgrade REST APIs",
-		"description": "APIs to cater for Nor1 eXpress Upgrades\n\nOracle’s Nor1 eXpress Upgrade allows hotels and resorts to present confirmed room upsell offers to guests before arrival, allowing the hotel to monetize inventory and avoid oversold conversations at check-in. Nor1 eXpress Upgrade offers allows instant fulfillment of the offer and updates the reservation in OPERA Cloud in real time.\n\nFor further detailed information on Nor1 eXpress, please refer to the eXpress User Guide located [here](https://docs.oracle.com/en/industries/hospitality/nor1-cloud/norug/ch_express_upgrades.htm#EXpressUpgrades-95A131F1).",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "44991951"
-	},
-	"item": [
-		{
-			"name": "OAuth Token",
-			"item": [
-				{
-					"name": "Get OAuth Token for Resource Owner environments",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = JSON.parse(responseBody);\r",
-									"postman.setEnvironmentVariable(\"Token\", jsonData.access_token);\r",
-									"//Set currentdate and currentdateplus1 variables\r",
-									"var moment = require('moment');\r",
-									"pm.environment.set('currentdate', moment().format((\"YYYY-MM-DD\")))\r",
-									"pm.environment.set('currentdateplus1', moment().add(1, 'days').format((\"YYYY-MM-DD\")))\r",
-									"var uuid = require('uuid');\r",
-									"var myUUID = uuid.v4();\r",
-									"pm.environment.set(\"MyGUID\", myUUID);\r",
-									"pm.environment.set(\"HashedAppKey\", CryptoJS.SHA256(pm.environment.get(\"AppKey\")).toString());"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "{{CLIENT_SECRET}}",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "{{CLIENT_ID}}",
-									"type": "string"
-								},
-								{
-									"key": "saveHelperData",
-									"value": true,
-									"type": "boolean"
-								},
-								{
-									"key": "showPassword",
-									"value": false,
-									"type": "boolean"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/x-www-form-urlencoded",
-								"type": "text"
-							},
-							{
-								"key": "x-app-key",
-								"value": "{{AppKey}}",
-								"type": "text"
-							},
-							{
-								"key": "enterpriseId",
-								"value": "{{EnterpriseId}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "username",
-									"value": "{{Username}}",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "{{Password}}",
-									"type": "text"
-								},
-								{
-									"key": "grant_type",
-									"value": "password",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{HostName}}/oauth/v1/tokens",
-							"host": [
-								"{{HostName}}"
-							],
-							"path": [
-								"oauth",
-								"v1",
-								"tokens"
-							]
-						},
-						"description": "Use this API to request an oAuth token when the environment is a Resource Owner environment. You can see which oAuth flow an environment supports by looking at the Environment page in the OHIP Developer Portal. For more information see (Authenticating to Oracle Hospitality Property APIs)\\[[https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_oracle_hospitality_property_apis.htm#AuthenticatingToOracleHospitalityPr-1BD54F80](https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_oracle_hospitality_property_apis.htm#AuthenticatingToOracleHospitalityPr-1BD54F80)\\] under the heading \"Resource Owner-Based Authentication\".\n\nTo call this API you will need:\n\n1. To know the environment is a Resource Owner environment - see above\n    \n2. A valid ClientId and ClientSecret\n    \n3. An integration user and its password that has been approved by the environment owner\n    \n4. A valid application key\n    \n\nBecause of this, oAuth tokens may only be used when calling the given environment.\n\noAuth tokens expire after 60 minutes. We recommend obtaining a new oAuth token every 50 minutes, but not more frequently."
-					},
-					"response": []
-				},
-				{
-					"name": "Get OAuth Token for Client Credentials environments",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = JSON.parse(responseBody);\r",
-									"postman.setEnvironmentVariable(\"Token\", jsonData.access_token);\r",
-									"//Set currentdate and currentdateplus1 variables\r",
-									"var moment = require('moment');\r",
-									"pm.environment.set('currentdate', moment().format((\"YYYY-MM-DD\")))\r",
-									"pm.environment.set('currentdateplus1', moment().add(1, 'days').format((\"YYYY-MM-DD\")))\r",
-									"var uuid = require('uuid');\r",
-									"var myUUID = uuid.v4();\r",
-									"pm.environment.set(\"MyGUID\", myUUID);\r",
-									"(async () => {\r",
-									"    const encoder = new TextEncoder();\r",
-									"    const data = encoder.encode(pm.environment.get(\"AppKey\"));\r",
-									"    \r",
-									"    const hashBuffer = await crypto.subtle.digest(\"SHA-256\", data);\r",
-									"    const hashArray = Array.from(new Uint8Array(hashBuffer));\r",
-									"    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');\r",
-									"    \r",
-									"    pm.environment.set(\"HashedAppKey\", hashHex);\r",
-									"})();\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "{{CLIENT_SECRET}}",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "{{CLIENT_ID}}",
-									"type": "string"
-								},
-								{
-									"key": "undefined",
-									"type": "any"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/x-www-form-urlencoded",
-								"type": "text"
-							},
-							{
-								"key": "x-app-key",
-								"value": "{{AppKey}}",
-								"type": "text"
-							},
-							{
-								"key": "enterpriseId",
-								"value": "{{EnterpriseId}}",
-								"type": "text"
-							},
-							{
-								"key": "X-Request-Id",
-								"value": "{{$guid}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "grant_type",
-									"value": "client_credentials",
-									"type": "text"
-								},
-								{
-									"key": "scope",
-									"value": "urn:opc:hgbu:ws:__myscopes__",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{HostName}}/oauth/v1/tokens",
-							"host": [
-								"{{HostName}}"
-							],
-							"path": [
-								"oauth",
-								"v1",
-								"tokens"
-							]
-						},
-						"description": "Use this API to request an oAuth token when the environment is a Client Credentials environment. You can see which oAuth flow an environment supports by looking at the Environment page in the OHIP Developer Portal. For more information see (Authenticating to Oracle Hospitality Property APIs)\\[[https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_oracle_hospitality_property_apis.htm#AuthenticatingToOracleHospitalityPr-1BD54F80](https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_oracle_hospitality_property_apis.htm#AuthenticatingToOracleHospitalityPr-1BD54F80)\\] under the heading \"Client Credentials-Based Authentication\".\n\nTo call this API you will need:\n\n1. To know the environment is a Client Credentials environment - see above\n2. A valid ClientId and ClientSecret\n3. A valid EnterpriseId\n4. A valid application key\n    \n\nBecause of this, oAuth tokens may only be used when calling the given environment.\n\noAuth tokens expire after 60 minutes. We recommend obtaining a new oAuth token every 50 minutes, but not more frequently."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Upsell Offers API",
-			"item": [
-				{
-					"name": "Get Upsell Offers",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = JSON.parse(responseBody);\r",
-									"postman.setEnvironmentVariable(\"SelectedOfferId\", jsonData.items[0].upsellOffers[0].offers[0].offerId);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{Token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "providerId",
-								"value": "{{ProviderId}}",
-								"type": "default"
-							},
-							{
-								"key": "x-app-key",
-								"value": "{{AppKey}}",
-								"type": "default"
-							},
-							{
-								"key": "Accept-Language",
-								"value": "{{LanguageCode}}",
-								"type": "default"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HostName}}/ohcgep/v1/hotels/{{HotelId}}/reservations/{{ReservationId}}/arrivalDate/{{ArrivalDate}}/upsellOffers",
-							"host": [
-								"{{HostName}}"
-							],
-							"path": [
-								"ohcgep",
-								"v1",
-								"hotels",
-								"{{HotelId}}",
-								"reservations",
-								"{{ReservationId}}",
-								"arrivalDate",
-								"{{ArrivalDate}}",
-								"upsellOffers"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Post Upsell Offer",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{Token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "providerId",
-								"value": "{{ProviderId}}",
-								"type": "default"
-							},
-							{
-								"key": "x-app-key",
-								"value": "{{AppKey}}",
-								"type": "default"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"offerId\": \"{{SelectedOfferId}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HostName}}/ohcgep/v1/hotels/{{HotelId}}/reservations/{{ReservationId}}/arrivalDate/{{ArrivalDate}}/upsellOffers",
-							"host": [
-								"{{HostName}}"
-							],
-							"path": [
-								"ohcgep",
-								"v1",
-								"hotels",
-								"{{HotelId}}",
-								"reservations",
-								"{{ReservationId}}",
-								"arrivalDate",
-								"{{ArrivalDate}}",
-								"upsellOffers"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "53613a8c-53f4-4708-b94f-3df6071acccc",
+    "name": "4. Nor1 Upgrade REST APIs",
+    "description": "**Nor1 Upgrade REST APIs**  \nThe Nor1 Upgrade REST APIs enable hotels and resorts to seamlessly present and fulfill room upsell offers for guests prior to arrival. By integrating with Oracle’s Nor1 eXpress Upgrade solution, properties can monetize available inventory, enhance guest experiences, and avoid oversold situations at check-in. All upgrades are instantly fulfilled and reservations are updated in real time within OPERA Cloud.  \n\n**Key Features:**\n\n- Retrieve available upsell offers for a reservation\n    \n- Submit and confirm upsell offers for guests\n    \n- Real-time integration with OPERA Cloud PMS\n    \n\n**Authentication**:\n\nAll endpoints require OAuth 2.0 authentication. Refer to the “OAuth Token” folder for details on obtaining access tokens for both Client Credentials and Resource Owner flows.  \n\n**Getting Started:**\n\n1. Obtain an OAuth token using your environment’s credentials.\n    \n2. Use the “Get Upsell Offers” endpoint to view available upgrades for a reservation.\n    \n3. Use the “Post Upsell Offer” endpoint to confirm an upgrade.\n    \n\n**Documentation & Support:**\n\n- [Nor1 eXpress User Guide](https://docs.oracle.com/en/industries/hospitality/nor1-cloud/norug/ch_express_upgrades.htm#5-eXpress-Upgrade)\n    \n- [Authenticating to Oracle Hospitality Property APIs](https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_authenticating_to_oracle_hospitality_property_apis_ocim.htm)\n    \n\nFor questions or support, please contact your Oracle Hospitality representative.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46029196",
+    "_collection_link": "https://go.postman.co/collection/46029196-53613a8c-53f4-4708-b94f-3df6071acccc?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "OAuth Token",
+      "item": [
+        {
+          "name": "Get OAuth Token for Resource Owner environments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);\r\npostman.setEnvironmentVariable(\"Token\", jsonData.access_token);\r\n//Set currentdate and currentdateplus1 variables\r\nvar moment = require('moment');\r\npm.environment.set('currentdate', moment().format((\"YYYY-MM-DD\")))\r\npm.environment.set('currentdateplus1', moment().add(1, 'days').format((\"YYYY-MM-DD\")))\r\nvar uuid = require('uuid');\r\nvar myUUID = uuid.v4();\r\npm.environment.set(\"MyGUID\", myUUID);\r\npm.environment.set(\"HashedAppKey\", CryptoJS.SHA256(pm.environment.get(\"AppKey\")).toString());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{CLIENT_ID}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{CLIENT_SECRET}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              },
+              {
+                "key": "x-app-key",
+                "value": "{{AppKey}}"
+              },
+              {
+                "key": "enterpriseId",
+                "value": "{{EnterpriseId}}"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{Username}}"
+                },
+                {
+                  "key": "password",
+                  "value": "{{Password}}"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{HostName}}/oauth/v1/tokens",
+              "host": [
+                "{{HostName}}"
+              ],
+              "path": [
+                "oauth",
+                "v1",
+                "tokens"
+              ]
+            },
+            "description": "Use this API to request an oAuth token when the environment is a Resource Owner environment. You can see which oAuth flow an environment supports by looking at the Environment page in the OHIP Developer Portal. For more information see (Authenticating to Oracle Hospitality Property APIs)\\[[https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_oracle_hospitality_property_apis.htm#AuthenticatingToOracleHospitalityPr-1BD54F80](https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_oracle_hospitality_property_apis.htm#AuthenticatingToOracleHospitalityPr-1BD54F80)\\] under the heading \"Resource Owner-Based Authentication\".\n\nTo call this API you will need:\n\n1. To know the environment is a Resource Owner environment - see above\n    \n2. A valid ClientId and ClientSecret\n    \n3. An integration user and its password that has been approved by the environment owner\n    \n4. A valid application key\n    \n\nBecause of this, oAuth tokens may only be used when calling the given environment.\n\noAuth tokens require periodic renewal. Consult the `exp` attribute in the JWT for the date and time the token expires. Request a new oAuth token 2 minutes before the token is due to expire."
+          },
+          "response": []
+        },
+        {
+          "name": "Get OAuth Token for Client Credentials environments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);\r\npostman.setEnvironmentVariable(\"Token\", jsonData.access_token);\r\n//Set currentdate and currentdateplus1 variables\r\nvar moment = require('moment');\r\npm.environment.set('currentdate', moment().format((\"YYYY-MM-DD\")))\r\npm.environment.set('currentdateplus1', moment().add(1, 'days').format((\"YYYY-MM-DD\")))\r\nvar uuid = require('uuid');\r\nvar myUUID = uuid.v4();\r\npm.environment.set(\"MyGUID\", myUUID);\r\npm.environment.set(\"HashedAppKey\", CryptoJS.SHA256(pm.environment.get(\"AppKey\")).toString());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{CLIENT_ID}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{CLIENT_SECRET}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              },
+              {
+                "key": "x-app-key",
+                "value": "{{AppKey}}"
+              },
+              {
+                "key": "enterpriseId",
+                "value": "{{EnterpriseId}}"
+              },
+              {
+                "key": "X-Request-Id",
+                "value": "{{request_id}}"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                },
+                {
+                  "key": "scope",
+                  "value": "urn:opc:hgbu:ws:__myscopes__"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{HostName}}/oauth/v1/tokens",
+              "host": [
+                "{{HostName}}"
+              ],
+              "path": [
+                "oauth",
+                "v1",
+                "tokens"
+              ]
+            },
+            "description": "Use this API to request an oAuth token when the environment is a Client Credentials environment. You can see which oAuth flow an environment supports by looking at the Environment page in the OHIP Developer Portal. For more information see (Authenticating to Oracle Hospitality Property APIs)\\[[https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_oracle_hospitality_property_apis.htm#AuthenticatingToOracleHospitalityPr-1BD54F80](https://docs.oracle.com/en/industries/hospitality/integration-platform/ohipu/c_oracle_hospitality_property_apis.htm#AuthenticatingToOracleHospitalityPr-1BD54F80)\\] under the heading \"Client Credentials-Based Authentication\".\n\nTo call this API you will need:\n\n1. To know the environment is a Client Credentials environment - see above\n    \n2. A valid ClientId and ClientSecret\n    \n3. A valid EnterpriseId\n    \n4. A valid application key\n    \n\nBecause of this, oAuth tokens may only be used when calling the given environment.\n\noAuth tokens require periodic renewal. Consult the `exp` attribute in the JWT for the date and time the token expires. Request a new oAuth token 2 minutes before the token is due to expire."
+          },
+          "response": []
+        }
+      ],
+      "description": "**Purpose:**  \nThis folder provides endpoints to obtain OAuth tokens for Oracle Hospitality APIs, supporting both Client Credentials and Resource Owner authentication flows.\n\nEndpoints Included:\n\n- POST {{HostName}}/oauth/v1/tokens (Client Credentials)\n    \n- POST {{HostName}}/oauth/v1/tokens (Resource Owner)\n    \n\n**Use Cases:**\n\n- Obtain OAuth tokens for secure API access in Oracle Hospitality environments.\n    \n- Support integration scenarios requiring either Client Credentials or Resource Owner authentication.\n    \n\n**Prerequisites:**\n\n- Access to Oracle Hospitality environments with appropriate permissions.\n    \n- Valid ClientId, ClientSecret, EnterpriseId, Application Key, and (for Resource Owner) integration user credentials.\n    \n\n**Authentication:**  \nThese endpoints are used to obtain OAuth tokens. Use the acquired token as a Bearer token in the Authorization header for subsequent API requests. oAuth tokens require periodic renewal. Consult the `exp` attribute in the JWT for the date and time the token expires. Request a new oAuth token 2 minutes before the token is due to expire."
+    },
+    {
+      "name": "Upsell Offers API",
+      "item": [
+        {
+          "name": "Get Upsell Offers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);\r",
+                  "postman.setEnvironmentVariable(\"SelectedOfferId\", jsonData.items[0].upsellOffers[0].offers[0].offerId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "providerId",
+                "value": "{{ProviderId}}",
+                "type": "default"
+              },
+              {
+                "key": "x-app-key",
+                "value": "{{AppKey}}",
+                "type": "default"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{LanguageCode}}",
+                "type": "default"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{HostName}}/ohcgep/v1/hotels/{{HotelId}}/reservations/{{ReservationId}}/arrivalDate/{{ArrivalDate}}/upsellOffers",
+              "host": [
+                "{{HostName}}"
+              ],
+              "path": [
+                "ohcgep",
+                "v1",
+                "hotels",
+                "{{HotelId}}",
+                "reservations",
+                "{{ReservationId}}",
+                "arrivalDate",
+                "{{ArrivalDate}}",
+                "upsellOffers"
+              ]
+            },
+            "description": "**Description:**\n\nRetrieves a list of available upsell offers for a specified reservation or guest in OPERA Cloud. This endpoint enables hotels to present targeted upgrade and add-on options to guests, enhancing the guest experience and increasing ancillary revenue.\n\n**Parameters:**\n\n**Path/Query Parameters:**\n\n- Reservation ID or Guest ID (required): Identifies the reservation or guest for which upsell offers are to be retrieved.\n    \n- Additional filters (optional): May include date range, offer type, or other criteria depending on API specification.\n    \n\n**Headers:**\n\n- Authorization: Bearer token (required)\n    \n- Application Key, Enterprise ID, and other required headers as per your environment configuration.\n    \n\n**Intended Use Cases:**\n\n- Display available room upgrades or add-on services to guests during booking, check-in, or pre-arrival.\n    \n- Integrate upsell functionality into custom booking engines, mobile apps, or guest portals.\n    \n- Support automated marketing or revenue management workflows.\n    \n\n**Prerequisites:**\n\n- Access to an OPERA Cloud environment with upsell functionality enabled.\n    \n- Valid OAuth 2.0 Bearer token and required API credentials.\n    \n- The reservation or guest must exist in the system.\n    \n- Hotel has purchased NOR1\n    \n\n**Authentication Details**:\n\nThis request requires OAuth 2.0 Bearer token authentication. Obtain a valid token using the OAuth Token endpoints and include it in the Authorization header"
+          },
+          "response": []
+        },
+        {
+          "name": "Post Upsell Offer",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "providerId",
+                "value": "{{ProviderId}}",
+                "type": "default"
+              },
+              {
+                "key": "x-app-key",
+                "value": "{{AppKey}}",
+                "type": "default"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"offerId\": \"{{SelectedOfferId}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{HostName}}/ohcgep/v1/hotels/{{HotelId}}/reservations/{{ReservationId}}/arrivalDate/{{ArrivalDate}}/upsellOffers",
+              "host": [
+                "{{HostName}}"
+              ],
+              "path": [
+                "ohcgep",
+                "v1",
+                "hotels",
+                "{{HotelId}}",
+                "reservations",
+                "{{ReservationId}}",
+                "arrivalDate",
+                "{{ArrivalDate}}",
+                "upsellOffers"
+              ]
+            },
+            "description": "**Description:**\n\nSubmits a selected upsell offer for a specific reservation in OPERA Cloud. This endpoint is used to apply an upgrade or add-on service to a guest’s reservation, enabling hotels to enhance the guest experience and drive incremental revenue.\n\n**Parameters:**\n\n**Path Parameters:**\n\n- HotelId (required): The unique identifier for the hotel property.\n    \n- ReservationId (required): The unique identifier for the reservation.\n    \n- ArrivalDate (required): The arrival date for the reservation.\n    \n\n**Headers:**\n\n- providerId (required): The provider identifier for the integration.\n    \n- x-app-key (required): The application key for API access.\n    \n- Authorization (required): Bearer token obtained via OAuth 2.0.\n    \n\n**Request Body:**\n\n- offerId (required): The unique identifier of the selected upsell offer to be applied.\n    \n\n**Intended Use Cases:**\n\n- Apply a room upgrade or add-on service to a guest’s reservation during pre-arrival, check-in, or at any point before stay.\n    \n- Integrate upsell acceptance into custom guest portals, mobile apps, or front desk systems.\n    \n- Automate upsell workflows as part of revenue management strategies.\n    \n- **Prerequisites:**  \n    Access to an OPERA Cloud environment with upsell offers configured.\n    \n- Valid OAuth 2.0 Bearer token and required API credentials.  \n    The reservation and selected offer must exist and be eligible for upsell.\n    \n- The hotel must have purchased NOR1.\n    \n\n**Authentication Details:**\n\nThis request requires OAuth 2.0 Bearer token authentication. Obtain a valid token using the OAuth Token endpoints and include it in the Authorization header."
+          },
+          "response": []
+        }
+      ],
+      "description": "**Purpose:**\n\nThis folder contains endpoints for managing and retrieving upsell offers for hotel reservations in Oracle Hospitality solutions. It enables partners and developers to fetch available upsell offers and submit selected offers for a specific reservation and arrival date.\n\n**Endpoints Included:**\n\n- GET /ohcgep/v1/hotels/{{HotelId}}/reservations/{{ReservationId}}/arrivalDate/{{ArrivalDate}}/upsellOffers  \n    Retrieve available upsell offers for a reservation.\n    \n- POST /ohcgep/v1/hotels/{{HotelId}}/reservations/{{ReservationId}}/arrivalDate/{{ArrivalDate}}/upsellOffers  \n    Submit a selected upsell offer for a reservation.\n    \n\n**Use Cases:**  \nDisplaying upsell options to guests during booking or check-in.  \nIntegrating upsell workflows into partner applications.  \nAutomating the process of offering room upgrades or add-ons.\n\n**Prerequisites:**  \nAccess to Oracle Hospitality OPERA Cloud REST APIs.  \nValid hotel, reservation, and arrival date information.\n\n**Authentication:**\n\nAll endpoints require authentication via environment variables. Please ensure you have configured the appropriate authentication credentials in your Postman environment (e.g., OAuth 2.0 token or API key as required by your deployment)."
+    }
+  ]
 }

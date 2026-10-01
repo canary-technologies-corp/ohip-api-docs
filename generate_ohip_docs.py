@@ -799,13 +799,20 @@ async function renderEndpointDetail(apiId, idx) {
       }).join('') + '</tbody></table>';
   }
 
+  let bodyHtml = '';
+  ep.parameters.forEach(function(p) {
+    if (p["in"] === 'body' && p.schema) {
+      bodyHtml += '<h3>Request Body</h3><div class="schema-tree">' + renderSchema(p.schema, detail.definitions) + '</div>';
+    }
+  });
+
   let responsesHtml = '<h3>Responses</h3>';
   for (const [code, resp] of Object.entries(ep.responses)) {
     const codeClass = code.startsWith('2') ? 'c2xx' : code.startsWith('4') ? 'c4xx' : code.startsWith('5') ? 'c5xx' : '';
     responsesHtml += '<div class="response-item"><span class="response-code ' + codeClass + '">' + esc(code) + '</span>' +
       '<span class="response-desc">' + esc(resp.description) + '</span>';
     if (resp.schema) {
-      responsesHtml += '<div class="schema-section"><div class="schema-tree">' + renderSchema(resp.schema, detail.definitions, 0) + '</div></div>';
+      responsesHtml += '<div class="schema-section"><div class="schema-tree">' + renderSchema(resp.schema, detail.definitions) + '</div></div>';
     }
     responsesHtml += '</div>';
   }
@@ -820,20 +827,30 @@ async function renderEndpointDetail(apiId, idx) {
     '<div class="endpoint-summary">' + esc(ep.summary) + '</div>' +
     (cleanDesc ? '<div class="endpoint-desc">' + cleanDesc + '</div>' : '') +
     '<div class="endpoint-operation-id">Operation ID: <code>' + esc(ep.operationId) + '</code></div>' +
-    paramsHtml + responsesHtml + '</div>';
+    paramsHtml + bodyHtml + responsesHtml + '</div>';
   main.scrollTop = 0;
 }
 
-function renderSchema(schema, definitions, depth, seen) {
+function renderSchema(schema, definitions) {
   if (!schema) return '';
-  seen = seen || new Set();
-  if (depth > 8) return '<span class="schema-type">...</span>';
 
   if (schema.$ref) {
     var refName = schema.$ref.replace('#/definitions/', '');
     return '<div class="schema-node">' +
-      '<span class="schema-toggle" onclick="toggleSchemaRef(this, \'' + escAttr(refName) + '\')" data-ref="' + escAttr(refName) + '" data-depth="' + depth + '">&#9654;</span> ' +
+      '<span class="schema-toggle" onclick="toggleSchemaRef(this, \'' + escAttr(refName) + '\')" data-ref="' + escAttr(refName) + '">&#9654;</span> ' +
       '<span class="schema-ref" onclick="toggleSchemaRef(this.previousElementSibling, \'' + escAttr(refName) + '\')">' + esc(refName) + '</span></div>';
+  }
+
+  if (schema.allOf) {
+    // Oracle appends example-only members to allOf; they carry no schema to draw.
+    var parts = schema.allOf.filter(function(s) { return s.$ref || s.type || s.properties || s.allOf; })
+      .map(function(s) { return renderSchema(s, definitions); }).join('');
+    if (schema.properties) {
+      var own = Object.assign({}, schema);
+      delete own.allOf;
+      parts += renderSchema(own, definitions);
+    }
+    return parts;
   }
 
   if (schema.type === 'object' || schema.properties) {
@@ -843,17 +860,17 @@ function renderSchema(schema, definitions, depth, seen) {
     if (schema.description) html += ' <span class="schema-desc">\u2014 ' + esc(truncate(schema.description, 80)) + '</span>';
     html += '</div><div class="schema-children">';
     for (const [key, val] of Object.entries(props)) {
-      html += '<div class="schema-node"><span class="schema-key">' + esc(key) + '</span>' + (required.has(key) ? ' <span class="required-badge">req</span>' : '') + ': ' + renderSchema(val, definitions, depth + 1, seen) + '</div>';
+      html += '<div class="schema-node"><span class="schema-key">' + esc(key) + '</span>' + (required.has(key) ? ' <span class="required-badge">req</span>' : '') + ': ' + renderSchema(val, definitions) + '</div>';
     }
     if (schema.additionalProperties && typeof schema.additionalProperties === 'object') {
-      html += '<div class="schema-node"><span class="schema-key">[*]</span>: ' + renderSchema(schema.additionalProperties, definitions, depth + 1, seen) + '</div>';
+      html += '<div class="schema-node"><span class="schema-key">[*]</span>: ' + renderSchema(schema.additionalProperties, definitions) + '</div>';
     }
     html += '</div>';
     return html;
   }
 
   if (schema.type === 'array' && schema.items) {
-    return '<span class="schema-type">array</span> of ' + renderSchema(schema.items, definitions, depth + 1, seen);
+    return '<span class="schema-type">array</span> of ' + renderSchema(schema.items, definitions);
   }
 
   var typeStr = schema.type || 'any';
@@ -882,8 +899,7 @@ function toggleSchemaRef(toggleEl, refName) {
     node.appendChild(errDiv);
     return;
   }
-  var depth = parseInt(toggleEl.dataset.depth || '0') + 1;
-  var html = renderSchema(def, detail.definitions, depth);
+  var html = renderSchema(def, detail.definitions);
   childrenEl = document.createElement('div');
   childrenEl.className = 'schema-children';
   childrenEl.innerHTML = html;
@@ -1195,7 +1211,8 @@ function methodFromShort(m) { return {G:'get',P:'post',U:'put',A:'patch',D:'dele
 function formatParamType(p) {
   var t = p.type || '';
   if (p.schema) {
-    if (p.schema.$ref) return p.schema.$ref.replace('#/definitions/', '');
+    var ref = p.schema.$ref || (p.schema.allOf && p.schema.allOf[0] && p.schema.allOf[0].$ref);
+    if (ref) return ref.replace('#/definitions/', '');
     if (p.schema.type) t = p.schema.type;
   }
   if (p.format) t += ' (' + p.format + ')';
